@@ -110,9 +110,7 @@ const App: React.FC = () => {
         <header className="bg-teal-600 text-white p-4 sm:p-6 shadow-md relative z-20">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm shadow-inner">
-                 <img src="/icon.png" alt="App Icon" className="w-8 h-8 object-contain" />
-              </div>
+              <img src="/icon.png?v=4" alt="YahtzeeNL Logo" className="w-10 h-10" />
               <h1 className="text-2xl font-bold tracking-tight">Yahtzee<span className="font-light opacity-80">NL</span></h1>
             </div>
             <button 

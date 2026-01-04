@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yahtzee-nl-v2';
+const CACHE_NAME = 'yahtzee-nl-v4';
 
 // Install event: skip waiting to activate immediately
 self.addEventListener('install', (event) => {
