@@ -82,7 +82,7 @@ const App: React.FC = () => {
         // Keep names, reset scores
         players: prev.players.map(p => ({
             ...p,
-            scores: {}
+            scores: {} as any
         }))
       }));
     }
@@ -111,7 +111,7 @@ const App: React.FC = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm shadow-inner">
-                 <img src="/icon.svg" alt="App Icon" className="w-8 h-8 object-contain" />
+                 <img src="/icon.png" alt="App Icon" className="w-8 h-8 object-contain" />
               </div>
               <h1 className="text-2xl font-bold tracking-tight">Yahtzee<span className="font-light opacity-80">NL</span></h1>
             </div>
