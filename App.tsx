@@ -109,9 +109,10 @@ const App: React.FC = () => {
         {/* Main Header */}
         <header className="bg-teal-600 text-white p-4 sm:p-6 shadow-md relative z-20">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <img src="/icon.png?v=4" alt="YahtzeeNL Logo" className="w-10 h-10" />
-              <h1 className="text-2xl font-bold tracking-tight">Yahtzee<span className="font-light opacity-80">NL</span></h1>
+            <div className="flex items-center">
+              <h1 className="text-4xl font-bold tracking-tight font-['Montserrat'] leading-none mt-1">
+                Yahtzee<span className="font-light">NL</span>
+              </h1>
             </div>
             <button 
               onClick={resetGame}
