@@ -57,19 +57,63 @@ const App: React.FC = () => {
   };
 
   const handleScoreChange = (playerIndex: number, categoryId: CategoryId, value: string) => {
-    // Basic validation to allow empty string (delete) or numbers
-    if (value !== '' && !/^\d+$/.test(value)) return;
+    const category = CATEGORIES.find(c => c.id === categoryId);
+    if (!category) return;
 
+    // Allow empty string (delete)
+    if (value === '') {
+      updateScoreState(playerIndex, categoryId, null);
+      return;
+    }
+
+    // Basic number validation
+    if (!/^\d+$/.test(value)) return;
+    
+    let parsedValue = parseInt(value, 10);
+
+    // LOGIC DEEL 2: Vaste scores (Full House, Straights, etc.)
+    // Als de gebruiker iets anders dan 0 invult, vullen we automatisch de vaste score in.
+    if (category.fixedScore) {
+       if (parsedValue !== 0) {
+         parsedValue = category.fixedScore;
+       }
+       // Als het 0 is, blijft het 0.
+    }
+
+    // LOGIC DEEL 1: Maximaal 5x de dobbelsteenwaarde
+    if (category.dieValue) {
+        const max = category.dieValue * 5;
+        // Als input groter is dan max, blokkeren we de update (behalve als ze aan het typen zijn, maar hier zijn we streng)
+        // We staan de invoer alleen toe als het <= max is.
+        if (parsedValue > max) return;
+    }
+
+    updateScoreState(playerIndex, categoryId, parsedValue);
+  };
+
+  // Validatie bij het verlaten van het veld (Blur)
+  // Hier controleren we of het getal een veelvoud is van de dobbelsteen (bijv. 3, 6, 9 voor Drieën)
+  const handleScoreBlur = (playerIndex: number, categoryId: CategoryId, value: string) => {
+      const category = CATEGORIES.find(c => c.id === categoryId);
+      if (!category || !category.dieValue || value === '') return;
+
+      const parsedValue = parseInt(value, 10);
+      
+      // Als het geen veelvoud is en niet 0, resetten we het veld (of zet op 0, hier kiezen we voor wissen/null om aan te geven dat het fout was)
+      if (parsedValue !== 0 && parsedValue % category.dieValue !== 0) {
+          // Ongeldige waarde (bijv 7 bij Drieën) -> Wissen
+          updateScoreState(playerIndex, categoryId, null);
+      }
+  };
+
+  const updateScoreState = (playerIndex: number, categoryId: CategoryId, value: number | null) => {
     setGameState(prev => {
       const newPlayers = [...prev.players];
-      // Convert to number or null if empty
-      const parsedValue = value === '' ? null : parseInt(value, 10);
-      
       newPlayers[playerIndex] = {
         ...newPlayers[playerIndex],
         scores: {
           ...newPlayers[playerIndex].scores,
-          [categoryId]: parsedValue
+          [categoryId]: value
         }
       };
       return { ...prev, players: newPlayers };
@@ -111,7 +155,7 @@ const App: React.FC = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <h1 className="text-4xl font-bold tracking-tight font-['Montserrat'] leading-none mt-1">
-                Yahtzee<span className="font-light">NL</span>
+                Yathzee<span className="font-light">NL</span>
               </h1>
             </div>
             <button 
@@ -158,6 +202,7 @@ const App: React.FC = () => {
                 category={cat} 
                 players={gameState.players} 
                 onScoreChange={handleScoreChange}
+                onScoreBlur={handleScoreBlur}
                 isSet={isScoreSet}
               />
             ))}
@@ -194,6 +239,7 @@ const App: React.FC = () => {
                 category={cat} 
                 players={gameState.players} 
                 onScoreChange={handleScoreChange}
+                onScoreBlur={handleScoreBlur}
                 isSet={isScoreSet}
               />
             ))}
@@ -244,8 +290,9 @@ const ScoreRow: React.FC<{
   category: CategoryDef;
   players: Player[];
   onScoreChange: (pIdx: number, cId: CategoryId, value: string) => void;
+  onScoreBlur: (pIdx: number, cId: CategoryId, value: string) => void;
   isSet: (pIdx: number, cId: CategoryId) => boolean;
-}> = ({ category, players, onScoreChange, isSet }) => {
+}> = ({ category, players, onScoreChange, onScoreBlur, isSet }) => {
   return (
     <div className="grid grid-cols-[1.2fr_1fr_1fr] gap-2 items-center">
       <div className="text-slate-700 font-medium text-sm sm:text-base leading-tight">
@@ -263,12 +310,18 @@ const ScoreRow: React.FC<{
               type="number"
               inputMode="numeric"
               pattern="[0-9]*"
+              min="0"
+              max={category.dieValue ? category.dieValue * 5 : undefined}
+              step={category.dieValue || undefined}
+              placeholder={category.fixedScore ? `${category.fixedScore}` : ''}
               value={score ?? ''}
               onChange={(e) => onScoreChange(idx, category.id, e.target.value)}
+              onBlur={(e) => onScoreBlur(idx, category.id, e.target.value)}
               onFocus={(e) => e.target.select()} // Auto-select on focus
               className={`
                 w-full h-12 sm:h-14 rounded-xl border-2 font-mono text-xl sm:text-2xl text-center outline-none transition-all duration-150
                 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:z-10
+                placeholder:text-slate-200
                 ${hasScore 
                   ? 'bg-white border-teal-500 text-teal-700 font-bold shadow-sm' 
                   : 'bg-slate-100 border-transparent text-slate-700 hover:bg-slate-200 focus:bg-white'

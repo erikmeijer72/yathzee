@@ -19,6 +19,7 @@ export interface CategoryDef {
   section: 'upper' | 'lower';
   description?: string;
   fixedScore?: number; // Hint for fixed score categories
+  dieValue?: number; // 1-6 for upper section validation
 }
 
 export interface Player {
